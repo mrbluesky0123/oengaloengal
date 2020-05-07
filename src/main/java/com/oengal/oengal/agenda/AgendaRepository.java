@@ -11,8 +11,8 @@ import java.util.List;
 @Repository
 public interface AgendaRepository extends JpaRepository<Agenda, Long> {
 
-    Page<Agenda> findByShowable(String showable, Pageable pageable);
-    Optional<Agenda> findByIdAndShowable(Long id, String showable);
+    Page<Agenda> findByDisplayYn(String displayYn, Pageable pageable);
+    Optional<Agenda> findByAgendaIdAndDisplayYn(Long id, String displayYn);
 
 
 }

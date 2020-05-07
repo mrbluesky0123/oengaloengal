@@ -20,12 +20,14 @@ import org.springframework.stereotype.Service;
 public class AgendaService {
 
     private AgendaRepository agendaRepository;
+    private AgendaStatisticsRepository agendaStatisticsRepository;
     private ModelMapper modelMapper;
 
     @Autowired
-    public AgendaService(AgendaRepository agendaRepository) {
+    public AgendaService(AgendaRepository agendaRepository, AgendaStatisticsRepository agendaStatisticsRepository) {
 
         this.agendaRepository = agendaRepository;
+        this.agendaStatisticsRepository = agendaStatisticsRepository;
         this.modelMapper = new ModelMapper();
 
     }
@@ -35,7 +37,7 @@ public class AgendaService {
     public List<Agenda> getAgendaList(int pageNum, int pageSize, String sort) {
 
         PageRequest pageRequest = PageRequest.of(pageNum, pageSize, Sort.by(sort).descending());
-        Page<Agenda> agendaPage = agendaRepository.findByShowable("Y", pageRequest);
+        Page<Agenda> agendaPage = agendaRepository.findByDisplayYn("Y", pageRequest);
         if(!agendaPage.hasContent()) {
             throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "No agendas.");
         }
@@ -50,36 +52,58 @@ public class AgendaService {
     public Agenda getAgenda(Long id) {
 
         Agenda agenda = null;
+        AgendaStatistics agendaStatistics = null;
 
         try {
-            agenda = this.agendaRepository.findByIdAndShowable(id, "Y")
+            agenda = this.agendaRepository.findByAgendaIdAndDisplayYn(id, "Y")
+                .orElseThrow(() -> new NoSuchElementException());
+            agendaStatistics = this.agendaStatisticsRepository.findByAgendaId(id)
                 .orElseThrow(() -> new NoSuchElementException());
         } catch(NoSuchElementException e) {
             throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda exists.");
         }
 
-        int hitCount = agenda.getHitCount();
-        log.error("#### " + agenda.getHitCount());
-        agenda.setHitCount(++hitCount);
+        int hitCount = agendaStatistics.getHitCount();
+        log.error("#### " + agendaStatistics.getHitCount());
+        agendaStatistics.setHitCount(++hitCount);
         // need exception handling
-        log.error("#### " + agenda.getHitCount());
-        this.agendaRepository.save(agenda);
+        log.error("#### " + agendaStatistics.getHitCount());
+        this.agendaStatisticsRepository.save(agendaStatistics);
 
         return agenda;
 
     }
 
+    // Post agenda
     public Agenda postAgenda(Agenda agenda) {
 
         Agenda newAgenda = null;
         agenda.setDisplayYn("Y");
 
         try {
+
             newAgenda = this.agendaRepository.save(agenda);
+
         } catch (DataAccessException e) {
             // need more detail
-            throw new AgendaException(HttpStatus.INTERNAL_SERVER_ERROR, -102, "Save error!");
+            throw new AgendaException(HttpStatus.INTERNAL_SERVER_ERROR, -102, "Agenda save error!");
         }
+
+        AgendaStatistics newAgendaStatistics = AgendaStatistics.builder()
+                                                            .agendaId(newAgenda.getAgendaId())
+                                                            .likeIt(0)
+                                                            .dislikeIt(0)
+                                                            .build();
+        try {
+
+            newAgendaStatistics = this.agendaStatisticsRepository.save(newAgendaStatistics);
+
+        } catch (DataAccessException e) {
+            // need more detail
+            throw new AgendaException(HttpStatus.INTERNAL_SERVER_ERROR, -102,
+                                                    "Agenda statistics save error!");
+        }
+
 
         return newAgenda;
 
@@ -96,8 +120,9 @@ public class AgendaService {
 
             try {
 
-                targetAgenda = this.agendaRepository.findByIdAndShowable(modifiedAgenda.getAgendaId(), "Y")
-                    .orElseThrow(() -> new NoSuchElementException());
+                targetAgenda = this.agendaRepository.findByAgendaIdAndDisplayYn(
+                                                        modifiedAgenda.getAgendaId(), "Y")
+                                                    .orElseThrow(() -> new NoSuchElementException());
                 targetAgenda.setCategory(modifiedAgenda.getCategory());
                 targetAgenda.setSubject(modifiedAgenda.getSubject());
                 targetAgenda.setContents(modifiedAgenda.getContents());
@@ -134,10 +159,11 @@ public class AgendaService {
 
         try {
 
-            targetAgenda = this.agendaRepository.findByIdAndShowable(id, "Y")
+            targetAgenda = this.agendaRepository.findByAgendaIdAndDisplayYn(id, "Y")
                 .orElseThrow(() -> new NoSuchElementException());
             targetAgenda.setDisplayYn("N");
             targetAgenda.setUpdDt(LocalDateTime.now());
+            // remove agenda statistics
 
         } catch(NoSuchElementException e) {
 
@@ -161,31 +187,31 @@ public class AgendaService {
     }
 
     // Increase agenda "likeit"
-    /*public Agenda increaseLikeIt(Long id) {
+    public AgendaStatistics increaseLikeIt(Long id) {
 
-        Agenda agenda = null;
+        AgendaStatistics agendaStatistics = null;
 
         try {
-            agenda = this.agendaRepository.findByIdAndShowable(id, "Y")
+            agendaStatistics = this.agendaStatisticsRepository.findByAgendaId(id)
                 .orElseThrow(() -> new NoSuchElementException());
         } catch(NoSuchElementException e) {
             throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda exists.");
         }
 
         // do not increase hit count for the same user
-        int likeit = agenda.getLikeIt();
-        log.error("#### " + agenda.getLikeIt());
-        agenda.setLikeIt(++likeit);
-        log.error("#### " + agenda.getLikeIt());
+        int likeit = agendaStatistics.getLikeIt();
+        log.error("#### " + agendaStatistics.getLikeIt());
+        agendaStatistics.setLikeIt(++likeit);
+        log.error("#### " + agendaStatistics.getLikeIt());
         // need exception handling
-        this.agendaRepository.save(agenda);
+        this.agendaStatisticsRepository.save(agendaStatistics);
 
-        return agenda;
+        return agendaStatistics;
 
-    }*/
+    }
 
     // Increase agenda "dislikeit"
-    /*public Agenda increaseDislikeIt(Long id) {
+    public Agenda increaseDislikeIt(Long id) {
 
         Agenda agenda = null;
 
@@ -206,6 +232,6 @@ public class AgendaService {
 
         return agenda;
 
-    }*/
+    }
 
 }

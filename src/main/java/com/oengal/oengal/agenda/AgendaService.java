@@ -72,7 +72,7 @@ public class AgendaService {
     public Agenda postAgenda(Agenda agenda) {
 
         Agenda newAgenda = null;
-        agenda.setShowable("Y");
+        agenda.setDisplayYn("Y");
 
         try {
             newAgenda = this.agendaRepository.save(agenda);
@@ -88,7 +88,7 @@ public class AgendaService {
     // Modify agenda
     public Agenda modifyAgenda(Agenda modifiedAgenda) {
 
-        if(modifiedAgenda.getId() == null) {
+        if(modifiedAgenda.getAgendaId() == null) {
                 throw new AgendaException(HttpStatus.BAD_REQUEST, -101, "Id cannot be null.");
             }
 
@@ -96,7 +96,7 @@ public class AgendaService {
 
             try {
 
-                targetAgenda = this.agendaRepository.findByIdAndShowable(modifiedAgenda.getId(), "Y")
+                targetAgenda = this.agendaRepository.findByIdAndShowable(modifiedAgenda.getAgendaId(), "Y")
                     .orElseThrow(() -> new NoSuchElementException());
                 targetAgenda.setCategory(modifiedAgenda.getCategory());
                 targetAgenda.setSubject(modifiedAgenda.getSubject());
@@ -104,7 +104,7 @@ public class AgendaService {
                 targetAgenda.setTag1(modifiedAgenda.getTag1());
                 targetAgenda.setTag2(modifiedAgenda.getTag2());
                 targetAgenda.setTag3(modifiedAgenda.getTag3());
-                targetAgenda.setUpdDate(LocalDateTime.now());
+                targetAgenda.setUpdDt(LocalDateTime.now());
 
         } catch(NoSuchElementException e) {
 
@@ -136,8 +136,8 @@ public class AgendaService {
 
             targetAgenda = this.agendaRepository.findByIdAndShowable(id, "Y")
                 .orElseThrow(() -> new NoSuchElementException());
-            targetAgenda.setShowable("N");
-            targetAgenda.setUpdDate(LocalDateTime.now());
+            targetAgenda.setDisplayYn("N");
+            targetAgenda.setUpdDt(LocalDateTime.now());
 
         } catch(NoSuchElementException e) {
 
@@ -161,7 +161,7 @@ public class AgendaService {
     }
 
     // Increase agenda "likeit"
-    public Agenda increaseLikeIt(Long id) {
+    /*public Agenda increaseLikeIt(Long id) {
 
         Agenda agenda = null;
 
@@ -182,10 +182,10 @@ public class AgendaService {
 
         return agenda;
 
-    }
+    }*/
 
     // Increase agenda "dislikeit"
-    public Agenda increaseDislikeIt(Long id) {
+    /*public Agenda increaseDislikeIt(Long id) {
 
         Agenda agenda = null;
 
@@ -206,6 +206,6 @@ public class AgendaService {
 
         return agenda;
 
-    }
+    }*/
 
 }

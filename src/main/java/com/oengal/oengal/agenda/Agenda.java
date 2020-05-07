@@ -17,14 +17,14 @@ import org.hibernate.annotations.GenerationTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="BOARD_MASTER")
+@Table(name="AGENDA_MASTER")
 @ToString
 @Builder
 public class Agenda {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long agendaId;
 
     @NotNull(message = "Category cannot be null.")
     @NotEmpty(message = "Category cannot be empty.")
@@ -42,7 +42,7 @@ public class Agenda {
     @NotNull(message = "UserID cannot be null.")
     @NotEmpty(message = "UserID cannot be empty.")
     @Column
-    private String register;
+    private String userId;
 
     @NotNull(message = "Versus1 cannot be null.")
     @NotEmpty(message = "Versus1 cannot be empty.")
@@ -60,15 +60,6 @@ public class Agenda {
     private String contents;
 
     @Column
-    private int hitCount;
-
-    @Column
-    private int likeIt;
-
-    @Column
-    private int dislikeIt;
-
-    @Column
     private String tag1;
 
     @Column
@@ -78,16 +69,16 @@ public class Agenda {
     private String tag3;
 
     @Column
-    private String showable;
+    private String displayYn;
     // Y N
     // CQRS
 
     @Column
     @Generated(GenerationTime.INSERT)
-    private LocalDateTime regDate;
+    private LocalDateTime regDt;
 
     @Column
-    private LocalDateTime updDate;
+    private LocalDateTime updDt;
 
 
 }

@@ -33,22 +33,22 @@ public class AgendaController {
             + "http://hostname:port/agenda/api\n"
             + "pageNum, pageSize, sort(정렬기준컬럼)이 쿼리파라미터로 사용되며 sort는 대소문자가 구분된 컬럼명을 사용\n"
             + "sort - regDate, likeit, dislikeit, ...")
-    public ResponseEntity<List<Agenda>> getAgendaList(
+    public ResponseEntity<List<AgendaResponse>> getAgendaList(
         @RequestParam String pageNum, @RequestParam String pageSize, @RequestParam String sort){
 
-        List<Agenda> agendaList = this.agendaService.getAgendaList(Integer.parseInt(pageNum),
+        List<AgendaResponse> agendaResponseListList = this.agendaService.getAgendaList(Integer.parseInt(pageNum),
             Integer.parseInt(pageSize), sort);
-        return ResponseEntity.status(HttpStatus.OK).body(agendaList);
+        return ResponseEntity.status(HttpStatus.OK).body(agendaResponseListList);
 
     }
 
     @GetMapping({"/v1/agenda/{id}"})
     @ApiOperation(value="하나의 논제 정보 요청",
         notes="논제 id로 하나의 논제에 대한 정보를 요청한다")
-    public ResponseEntity<Agenda> getAgenda(@PathVariable Long id){
+    public ResponseEntity<AgendaResponse> getAgenda(@PathVariable Long id){
 
-        Agenda agenda = this.agendaService.getAgenda(id);
-        return ResponseEntity.status(HttpStatus.OK).body(agenda);
+        AgendaResponse agendaResponse = this.agendaService.getAgenda(id);
+        return ResponseEntity.status(HttpStatus.OK).body(agendaResponse);
 
     }
 
@@ -56,10 +56,10 @@ public class AgendaController {
     @ApiOperation(value="논제 작성",
         notes="category(카테고리), register(유저ID), subject(제목), versus1(대상1), versus2(대상2), "
             + "contents(내용) 는 필수값(empty값도 허용하지 않음)")
-    public ResponseEntity<Agenda> requestAgenda(@RequestBody @Valid Agenda agenda) {
+    public ResponseEntity<AgendaResponse> requestAgenda(@RequestBody @Valid Agenda agenda) {
 
-        Agenda newAgenda = this.agendaService.postAgenda(agenda);
-        return ResponseEntity.status(HttpStatus.OK).body(newAgenda);
+        AgendaResponse newAgendaResponse = this.agendaService.postAgenda(agenda);
+        return ResponseEntity.status(HttpStatus.OK).body(newAgendaResponse);
 
     }
 
@@ -85,19 +85,19 @@ public class AgendaController {
 
     @PutMapping({"/v1/agenda/likeit/{id}"})
     @ApiOperation(value="논제 좋아요 증가", notes="논제 id로 하나의 논제 '좋아요'를 1증가 시킨다.")
-    public ResponseEntity<Agenda> increaseLikeit(@PathVariable Long id){
+    public ResponseEntity<AgendaStatistics> increaseLikeit(@PathVariable Long id){
 
-        Agenda newAgenda = this.agendaService.increaseLikeIt(id);
-        return ResponseEntity.status(HttpStatus.OK).body(newAgenda);
+        AgendaStatistics newAgendaStatistics = this.agendaService.increaseLikeIt(id);
+        return ResponseEntity.status(HttpStatus.OK).body(newAgendaStatistics);
 
     }
 
     @PutMapping({"/v1/agenda/dislikeit/{id}"})
     @ApiOperation(value="논제 싫어요 증가", notes="논제 id로 하나의 논제 '싫어요'를 1증가 시킨다.")
-    public ResponseEntity<Agenda> increaseDislikeit(@PathVariable Long id){
+    public ResponseEntity<AgendaStatistics> increaseDislikeit(@PathVariable Long id){
 
-        Agenda newAgenda = this.agendaService.increaseDislikeIt(id);
-        return ResponseEntity.status(HttpStatus.OK).body(newAgenda);
+        AgendaStatistics newAgendaStatistics = this.agendaService.increaseDislikeIt(id);
+        return ResponseEntity.status(HttpStatus.OK).body(newAgendaStatistics);
 
     }
 

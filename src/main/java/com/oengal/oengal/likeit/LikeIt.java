@@ -29,13 +29,16 @@ public class LikeIt {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column
+  @Column(name = "userid")
   private String userId;
 
-  @Column
-  private String agendaId;
+  @Column(name = "agendaid")
+  private Long agendaId;
 
-  @Column
+  @Column(name = "likeflag")
+  private String likeFlag;
+
+  @Column(name = "regdate")
   private LocalDateTime regDate;
 
 }

@@ -1,8 +1,11 @@
 package com.oengal.oengal.agenda;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -34,8 +37,11 @@ public class AgendaService {
 
 
     // Select agenda list
-    public List<Agenda> getAgendaList(int pageNum, int pageSize, String sort) {
+    public List<AgendaResponse> getAgendaList(int pageNum, int pageSize, String sort) {
 
+        List<AgendaResponse> agendaResponseList = new ArrayList<>();
+
+        // Get agendas
         PageRequest pageRequest = PageRequest.of(pageNum, pageSize, Sort.by(sort).descending());
         Page<Agenda> agendaPage = agendaRepository.findByDisplayYn("Y", pageRequest);
         if(!agendaPage.hasContent()) {
@@ -43,20 +49,43 @@ public class AgendaService {
         }
         List<Agenda> agendaList = agendaPage.getContent();
 
-        return agendaList;
+        // Make reponse with agenda, agenda statistics
+        for(Agenda agenda: agendaList){
+            AgendaStatistics agendaStatistics = null;
+
+            try {
+                agendaStatistics = this.agendaStatisticsRepository.findByAgendaId(agenda.getAgendaId())
+                        .orElseThrow(() -> new NoSuchElementException());
+            } catch(NoSuchElementException e) {
+                agendaStatistics = AgendaStatistics.builder().agendaId(agenda.getAgendaId())
+                                                            .hitCount(0)
+                                                            .likeIt(0)
+                                                            .dislikeIt(0)
+                                                            .build();
+                // throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda exists.");
+            }
+            AgendaResponse agendaResponse = new AgendaResponse(agenda, agendaStatistics);
+            agendaResponseList.add(agendaResponse);
+
+        }
+
+
+        return agendaResponseList;
 
     }
 
 
     // Select single agenda
-    public Agenda getAgenda(Long id) {
+    public AgendaResponse getAgenda(Long id) {
 
         Agenda agenda = null;
         AgendaStatistics agendaStatistics = null;
 
         try {
+            // Get single agenda
             agenda = this.agendaRepository.findByAgendaIdAndDisplayYn(id, "Y")
                 .orElseThrow(() -> new NoSuchElementException());
+            // Get single agenda statistics
             agendaStatistics = this.agendaStatisticsRepository.findByAgendaId(id)
                 .orElseThrow(() -> new NoSuchElementException());
         } catch(NoSuchElementException e) {
@@ -70,16 +99,18 @@ public class AgendaService {
         log.error("#### " + agendaStatistics.getHitCount());
         this.agendaStatisticsRepository.save(agendaStatistics);
 
-        return agenda;
+        return new AgendaResponse(agenda, agendaStatistics);
 
     }
 
     // Post agenda
-    public Agenda postAgenda(Agenda agenda) {
+    public AgendaResponse postAgenda(Agenda agenda) {
 
         Agenda newAgenda = null;
         agenda.setDisplayYn("Y");
 
+        // Post agenda
+        // Need transaction operation
         try {
 
             newAgenda = this.agendaRepository.save(agenda);
@@ -89,6 +120,7 @@ public class AgendaService {
             throw new AgendaException(HttpStatus.INTERNAL_SERVER_ERROR, -102, "Agenda save error!");
         }
 
+        // Make default statistics
         AgendaStatistics newAgendaStatistics = AgendaStatistics.builder()
                                                             .agendaId(newAgenda.getAgendaId())
                                                             .likeIt(0)
@@ -105,7 +137,7 @@ public class AgendaService {
         }
 
 
-        return newAgenda;
+        return new AgendaResponse(newAgenda, newAgendaStatistics);
 
     }
 
@@ -211,26 +243,26 @@ public class AgendaService {
     }
 
     // Increase agenda "dislikeit"
-    public Agenda increaseDislikeIt(Long id) {
+    public AgendaStatistics increaseDislikeIt(Long id) {
 
-        Agenda agenda = null;
+        AgendaStatistics agendaStatistics = null;
 
         try {
-            agenda = this.agendaRepository.findByIdAndShowable(id, "Y")
-                .orElseThrow(() -> new NoSuchElementException());
+            agendaStatistics =   this.agendaStatisticsRepository.findByAgendaId(id)
+                    .orElseThrow(() -> new NoSuchElementException());
         } catch(NoSuchElementException e) {
             throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda exists.");
         }
 
         // do not increase hit count for the same user
-        int dislikeit = agenda.getDislikeIt();
-        log.error("#### " + agenda.getDislikeIt());
-        agenda.setDislikeIt(++dislikeit);
-        log.error("#### " + agenda.getDislikeIt());
+        int dislikeit = agendaStatistics.getDislikeIt();
+        log.error("#### " + agendaStatistics.getDislikeIt());
+        agendaStatistics.setDislikeIt(++dislikeit);
+        log.error("#### " + agendaStatistics.getDislikeIt());
         // need exception handling
-        this.agendaRepository.save(agenda);
+        this.agendaStatisticsRepository.save(agendaStatistics);
 
-        return agenda;
+        return agendaStatistics;
 
     }
 

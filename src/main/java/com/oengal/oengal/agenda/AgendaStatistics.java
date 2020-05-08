@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 
 @Data
 @NoArgsConstructor
@@ -22,22 +24,23 @@ import lombok.NoArgsConstructor;
 public class AgendaStatistics {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "agenda_id")
   private Long agendaId;
 
-  @Column
+  @Column(name = "hit_count")
   private int hitCount;
 
-  @Column
+  @Column(name = "like_it")
   private int likeIt;
 
-  @Column
+  @Column(name = "dislike_it")
   private int dislikeIt;
 
-  @Column
+  @Column(name = "reg_dt")
+  @Generated(GenerationTime.INSERT)
   private LocalDateTime regDt;
 
-  @Column
+  @Column(name = "upd_dt")
   private LocalDateTime updDt;
 
 }

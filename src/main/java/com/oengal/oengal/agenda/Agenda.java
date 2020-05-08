@@ -24,6 +24,7 @@ public class Agenda {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "agenda_id")
     private Long agendaId;
 
     @NotNull(message = "Category cannot be null.")
@@ -41,17 +42,17 @@ public class Agenda {
 
     @NotNull(message = "UserID cannot be null.")
     @NotEmpty(message = "UserID cannot be empty.")
-    @Column
+    @Column(name = "user_id")
     private String userId;
 
     @NotNull(message = "Versus1 cannot be null.")
     @NotEmpty(message = "Versus1 cannot be empty.")
-    @Column
+    @Column(name = "versus_1")
     private String versus1;
 
     @NotNull(message = "Versus2 cannot be null.")
     @NotEmpty(message = "Versus2 cannot be empty.")
-    @Column
+    @Column(name = "versus_2")
     private String versus2;
 
     @NotNull(message = "Contents cannot be null.")
@@ -59,25 +60,25 @@ public class Agenda {
     @Column(columnDefinition = "TEXT")
     private String contents;
 
-    @Column
+    @Column(name = "tag_1")
     private String tag1;
 
-    @Column
+    @Column(name = "tag_2")
     private String tag2;
 
-    @Column
+    @Column(name = "tag_3")
     private String tag3;
 
-    @Column
+    @Column(name = "display_yn")
     private String displayYn;
     // Y N
     // CQRS
 
-    @Column
+    @Column(name = "reg_dt")
     @Generated(GenerationTime.INSERT)
     private LocalDateTime regDt;
 
-    @Column
+    @Column(name = "upd_dt")
     private LocalDateTime updDt;
 
 

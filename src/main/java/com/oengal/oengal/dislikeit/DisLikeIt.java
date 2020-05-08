@@ -28,13 +28,16 @@ public class DisLikeIt {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column
+  @Column(name = "userid")
   private String userId;
 
-  @Column
-  private String agendaId;
+  @Column(name = "agendaid")
+  private Long agendaId;
 
-  @Column
+  @Column(name = "dislikeflag")
+  private String dislikeFlag;
+
+  @Column(name = "regdate")
   private LocalDateTime regDate;
 
 }

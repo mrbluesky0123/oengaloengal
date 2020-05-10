@@ -24,14 +24,13 @@ public class AgendaService {
 
     private AgendaRepository agendaRepository;
     private AgendaStatisticsRepository agendaStatisticsRepository;
-    private ModelMapper modelMapper;
 
     @Autowired
-    public AgendaService(AgendaRepository agendaRepository, AgendaStatisticsRepository agendaStatisticsRepository) {
+    public AgendaService(AgendaRepository agendaRepository,
+        AgendaStatisticsRepository agendaStatisticsRepository) {
 
         this.agendaRepository = agendaRepository;
         this.agendaStatisticsRepository = agendaStatisticsRepository;
-        this.modelMapper = new ModelMapper();
 
     }
 
@@ -54,8 +53,9 @@ public class AgendaService {
             AgendaStatistics agendaStatistics = null;
 
             try {
-                agendaStatistics = this.agendaStatisticsRepository.findByAgendaId(agenda.getAgendaId())
-                        .orElseThrow(() -> new NoSuchElementException());
+                agendaStatistics = this.agendaStatisticsRepository.findByAgendaId(
+                    agenda.getAgendaId())
+                          .orElseThrow(() -> new NoSuchElementException());
             } catch(NoSuchElementException e) {
                 agendaStatistics = AgendaStatistics.builder().agendaId(agenda.getAgendaId())
                                                             .hitCount(0)
@@ -195,7 +195,7 @@ public class AgendaService {
                 .orElseThrow(() -> new NoSuchElementException());
             targetAgenda.setDisplayYn("N");
             targetAgenda.setUpdDt(LocalDateTime.now());
-            // remove agenda statistics
+            // remove agenda statistics?
 
         } catch(NoSuchElementException e) {
 

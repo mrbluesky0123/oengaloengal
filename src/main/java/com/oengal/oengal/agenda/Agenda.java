@@ -27,36 +27,41 @@ public class Agenda {
     @Column(name = "agenda_id")
     private Long agendaId;
 
-    @NotNull(message = "Category cannot be null.")
-    @NotEmpty(message = "Category cannot be empty.")
+    @NotNull(message = "'category' cannot be null.")
+    @NotEmpty(message = "'category' cannot be empty.")
     @Column
     private String category;
 
-    @NotNull(message = "Subject cannot be null.")
-    @NotEmpty(message = "Subject cannot be empty.")
+    @NotNull(message = "'subject' cannot be null.")
+    @NotEmpty(message = "'subject' cannot be empty.")
     @Column
     private String subject;
 
     @Column(columnDefinition = "TEXT")
     private String thumbnail;
 
-    @NotNull(message = "UserID cannot be null.")
-    @NotEmpty(message = "UserID cannot be empty.")
+    @NotNull(message = "'userId' cannot be null.")
+    @NotEmpty(message = "'userId' cannot be empty.")
     @Column(name = "user_id")
-    private String userId;
+    private Long userId;
 
-    @NotNull(message = "Versus1 cannot be null.")
-    @NotEmpty(message = "Versus1 cannot be empty.")
+    @NotNull(message = "'nickname' cannot be null.")
+    @NotEmpty(message = "'nickname' cannot be empty.")
+    @Column(name = "nickname")
+    private String nickname;
+
+    @NotNull(message = "'versus1' cannot be null.")
+    @NotEmpty(message = "'versus1' cannot be empty.")
     @Column(name = "versus_1")
     private String versus1;
 
-    @NotNull(message = "Versus2 cannot be null.")
-    @NotEmpty(message = "Versus2 cannot be empty.")
+    @NotNull(message = "'versus2' cannot be null.")
+    @NotEmpty(message = "'versus2' cannot be empty.")
     @Column(name = "versus_2")
     private String versus2;
 
-    @NotNull(message = "Contents cannot be null.")
-    @NotEmpty(message = "Contents cannot be empty.")
+    @NotNull(message = "'contents' cannot be null.")
+    @NotEmpty(message = "'contents' cannot be empty.")
     @Column(columnDefinition = "TEXT")
     private String contents;
 

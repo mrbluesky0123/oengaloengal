@@ -37,7 +37,7 @@ public class AgendaStatistics {
   private int dislikeIt;
 
   @Column(name = "reg_dt")
-  @Generated(GenerationTime.INSERT)
+//  @Generated(GenerationTime.INSERT)
   private LocalDateTime regDt;
 
   @Column(name = "upd_dt")

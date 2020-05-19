@@ -41,7 +41,7 @@ public class Agenda {
     private String thumbnail;
 
     @NotNull(message = "'userId' cannot be null.")
-    @NotEmpty(message = "'userId' cannot be empty.")
+//    @NotEmpty(message = "'userId' cannot be empty.")
     @Column(name = "user_id")
     private Long userId;
 

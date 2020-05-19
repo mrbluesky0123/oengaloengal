@@ -1,10 +1,12 @@
 package com.oengal.oengal.agenda;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +18,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
 @Data
 @Slf4j
+@Transactional(propagation = Propagation.REQUIRED)
 public class AgendaService {
 
     private AgendaRepository agendaRepository;
@@ -104,40 +110,52 @@ public class AgendaService {
     }
 
     // Post agenda
+
     public AgendaResponse postAgenda(Agenda agenda) {
 
         Agenda newAgenda = null;
+        AgendaStatistics newAgendaStatistics = null;
         agenda.setDisplayYn("Y");
-
+        System.out.println("#####" + TransactionSynchronizationManager.getCurrentTransactionName());
         // Post agenda
         // Need transaction operation
         try {
 
             newAgenda = this.agendaRepository.save(agenda);
-
-        } catch (DataAccessException e) {
+            newAgendaStatistics = this.postAgendaStatistics(newAgenda.getAgendaId());
+        } catch (Exception e) {
             // need more detail
             throw new AgendaException(HttpStatus.INTERNAL_SERVER_ERROR, -102, "Agenda save error!");
         }
 
+
+
+        return new AgendaResponse(newAgenda, newAgendaStatistics);
+
+    }
+
+    // Post agenda
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public AgendaStatistics postAgendaStatistics(Long agendaId) {
+        System.out.println("$$$$" + TransactionSynchronizationManager.getCurrentTransactionName());
         // Make default statistics
         AgendaStatistics newAgendaStatistics = AgendaStatistics.builder()
-                                                            .agendaId(newAgenda.getAgendaId())
-                                                            .likeIt(0)
-                                                            .dislikeIt(0)
-                                                            .build();
+            .agendaId(agendaId)
+            .likeIt(0)
+            .dislikeIt(0)
+            .build();
         try {
 
             newAgendaStatistics = this.agendaStatisticsRepository.save(newAgendaStatistics);
 
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             // need more detail
             throw new AgendaException(HttpStatus.INTERNAL_SERVER_ERROR, -102,
-                                                    "Agenda statistics save error!");
+                "Agenda statistics save error!");
         }
 
 
-        return new AgendaResponse(newAgenda, newAgendaStatistics);
+        return newAgendaStatistics;
 
     }
 

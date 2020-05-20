@@ -101,31 +101,4 @@ public class AgendaController {
 
     }
 
-    @ExceptionHandler(AgendaException.class)
-    public ResponseEntity<ErrorResponse> returnAgendaException(AgendaException agendaException) {
-
-        ErrorResponse errorResponse = new ErrorResponse
-            .ErrorResponseBuilder()
-            .bizErrorCode(agendaException.getCode())
-            .message(agendaException.getMessage())
-            .build();
-
-        return ResponseEntity.status(agendaException.getHttpStatus()).body(errorResponse);
-
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> returnInvalidInputException(MethodArgumentNotValidException methodArgumentNotValidException) {
-
-        ErrorResponse errorResponse = new ErrorResponse
-            .ErrorResponseBuilder()
-            .bizErrorCode(-101)
-            .message(methodArgumentNotValidException.getBindingResult().getFieldError().
-                getDefaultMessage())
-            .build();
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-
-    }
-
 }

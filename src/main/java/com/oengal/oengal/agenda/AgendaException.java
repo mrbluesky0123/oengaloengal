@@ -18,4 +18,10 @@ public class AgendaException extends RuntimeException {
     this.code = code;
   }
 
+  public AgendaException(HttpStatus httpStatus, int code, Throwable throwable) {
+    super(throwable.getMessage());
+    this.httpStatus = httpStatus;
+    this.code = code;
+  }
+
 }

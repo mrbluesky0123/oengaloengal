@@ -3,17 +3,21 @@ package com.oengal.oengal.agenda;
 import java.time.LocalDateTime;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -41,7 +45,6 @@ public class Agenda {
     private String thumbnail;
 
     @NotNull(message = "'userId' cannot be null.")
-//    @NotEmpty(message = "'userId' cannot be empty.")
     @Column(name = "user_id")
     private Long userId;
 
@@ -76,8 +79,6 @@ public class Agenda {
 
     @Column(name = "display_yn")
     private String displayYn;
-    // Y N
-    // CQRS
 
     @Column(name = "reg_dt")
     @Generated(GenerationTime.INSERT)

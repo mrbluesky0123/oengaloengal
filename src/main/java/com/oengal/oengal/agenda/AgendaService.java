@@ -8,6 +8,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 
+import java.util.Scanner;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,8 @@ public class AgendaService {
 
     // Get agendas
     PageRequest pageRequest = PageRequest.of(pageNum, pageSize, Sort.by(sort).descending());
+
+    //
     Page<Agenda> agendaPage = agendaRepository.findByDisplayYn("Y", pageRequest);
     if(!agendaPage.hasContent()) {
       throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "No agendas.");
@@ -55,25 +58,22 @@ public class AgendaService {
 
     // Make reponse with agenda, agenda statistics
     for(Agenda agenda: agendaList){
-      AgendaStatistics agendaStatistics = null;
-
-      try {
-        agendaStatistics = this.agendaStatisticsRepository.findByAgendaId(
-            agenda.getAgendaId())
-            .orElseThrow(() -> new NoSuchElementException());
-      } catch(NoSuchElementException e) {
-        agendaStatistics = AgendaStatistics.builder().agendaId(agenda.getAgendaId())
-            .hitCount(0)
-            .likeIt(0)
-            .dislikeIt(0)
-            .build();
-        // throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda exists.");
-      }
+      // 지연 로딩 확인
+      log.error("##### FUCK");
+      AgendaStatistics agendaStatistics = this.agendaStatisticsRepository
+                                                .findByAgendaId(agenda.getAgendaId()) // Optional<Agenda>
+                                                .orElse(AgendaStatistics.builder()
+                                                          .agendaId(agenda.getAgendaId())
+                                                          .hitCount(0)
+                                                          .likeIt(0)
+                                                          .dislikeIt(0)
+                                                          .build()
+                                                );
+      log.error("##### FUCK2");
       AgendaResponse agendaResponse = new AgendaResponse(agenda, agendaStatistics);
       agendaResponseList.add(agendaResponse);
 
     }
-
 
     return agendaResponseList;
 
@@ -93,11 +93,9 @@ public class AgendaService {
     agendaStatistics = this.agendaStatisticsRepository.findByAgendaId(id)
         .orElseThrow(() -> new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda statistics exists."));
 
+    // Increase hit count
     int hitCount = agendaStatistics.getHitCount();
-    log.error("#### " + agendaStatistics.getHitCount());
     agendaStatistics.setHitCount(++hitCount);
-    // need exception handling
-    log.error("#### " + agendaStatistics.getHitCount());
     this.agendaStatisticsRepository.save(agendaStatistics);
 
     return new AgendaResponse(agenda, agendaStatistics);
@@ -105,24 +103,37 @@ public class AgendaService {
   }
 
   // Post agenda
-
   public AgendaResponse postAgenda(Agenda agenda) {
 
     agenda.setDisplayYn("Y");
-    System.out.println("#####" + TransactionSynchronizationManager.getCurrentTransactionName());
     // Post agenda
     // Need transaction operation
-    Agenda newAgenda = this.agendaRepository.save(agenda);
 
+    Agenda newAgenda = this.agendaRepository.save(agenda);
+    log.info("###### Save() invoked.");
+    // for test
+    Scanner s = new Scanner(System.in);
+    log.info("###### Waiting...");
+    s.next();
+
+    log.info("###### Get agenda id");
+    Long id = agenda.getAgendaId();
+    log.error("###### Agenda ID = " + id);
+    log.info("###### Check DB...");
+    s.next();
+
+    log.info("###### Make statistics");
     AgendaStatistics newAgendaStatistics = AgendaStatistics.builder()
-        .agendaId(agenda.getAgendaId())
-        .likeIt(0)
-        .dislikeIt(0)
-        .build();
+                                                          .agendaId(agenda.getAgendaId())
+                                                          .likeIt(0)
+                                                          .dislikeIt(0)
+                                                          .build();
 
     newAgendaStatistics = this.agendaStatisticsRepository.save(newAgendaStatistics);
+    log.info("###### Statistics save() invoked.");
 
     return new AgendaResponse(newAgenda, newAgendaStatistics);
+//    return new AgendaResponse(newAgenda, null);
 
   }
 
@@ -137,13 +148,14 @@ public class AgendaService {
     Agenda targetAgenda = this.agendaRepository.findByAgendaIdAndDisplayYn(
           modifiedAgenda.getAgendaId(), "Y")
           .orElseThrow(() -> new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda exists."));
-      targetAgenda.setCategory(modifiedAgenda.getCategory());
-      targetAgenda.setSubject(modifiedAgenda.getSubject());
-      targetAgenda.setContents(modifiedAgenda.getContents());
-      targetAgenda.setTag1(modifiedAgenda.getTag1());
-      targetAgenda.setTag2(modifiedAgenda.getTag2());
-      targetAgenda.setTag3(modifiedAgenda.getTag3());
-      targetAgenda.setUpdDt(LocalDateTime.now());
+
+    targetAgenda.setCategory(modifiedAgenda.getCategory());
+    targetAgenda.setSubject(modifiedAgenda.getSubject());
+    targetAgenda.setContents(modifiedAgenda.getContents());
+    targetAgenda.setTag1(modifiedAgenda.getTag1());
+    targetAgenda.setTag2(modifiedAgenda.getTag2());
+    targetAgenda.setTag3(modifiedAgenda.getTag3());
+    targetAgenda.setUpdDt(LocalDateTime.now());
 
     return this.agendaRepository.save(targetAgenda);
 
@@ -176,9 +188,7 @@ public class AgendaService {
 
     // do not increase hit count for the same user
     int likeit = agendaStatistics.getLikeIt();
-    log.error("#### " + agendaStatistics.getLikeIt());
     agendaStatistics.setLikeIt(++likeit);
-    log.error("#### " + agendaStatistics.getLikeIt());
     // need exception handling
     this.agendaStatisticsRepository.save(agendaStatistics);
 
@@ -200,9 +210,7 @@ public class AgendaService {
 
     // do not increase hit count for the same user
     int dislikeit = agendaStatistics.getDislikeIt();
-    log.error("#### " + agendaStatistics.getDislikeIt());
     agendaStatistics.setDislikeIt(++dislikeit);
-    log.error("#### " + agendaStatistics.getDislikeIt());
     // need exception handling
     this.agendaStatisticsRepository.save(agendaStatistics);
 

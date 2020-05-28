@@ -49,7 +49,7 @@ public class Agenda {
     private Long userId;
 
     @NotNull(message = "'nickname' cannot be null.")
-    @NotEmpty(message = "'nickname' cannot be empty.")
+    @NotEmpty(message = "'nic   kname' cannot be empty.")
     @Column(name = "nickname")
     private String nickname;
 

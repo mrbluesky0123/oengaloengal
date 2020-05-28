@@ -5,6 +5,8 @@ import com.oengal.oengal.common.ErrorResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
+import java.util.Scanner;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -57,8 +59,11 @@ public class AgendaController {
         notes="category(카테고리), register(유저ID), subject(제목), versus1(대상1), versus2(대상2), "
             + "contents(내용) 는 필수값(empty값도 허용하지 않음)")
     public ResponseEntity<AgendaResponse> requestAgenda(@RequestBody @Valid Agenda agenda) {
-
+        Scanner s = new Scanner(System.in);
+        log.error("@@@@@@ [CONTROLLER] Received request.");
         AgendaResponse newAgendaResponse = this.agendaService.postAgenda(agenda);
+        log.error("@@@@@@ [CONTROLLER] Before return response.");
+        s.next();
         return ResponseEntity.status(HttpStatus.OK).body(newAgendaResponse);
 
     }

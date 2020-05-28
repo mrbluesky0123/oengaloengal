@@ -25,7 +25,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @Service
 @Data
 @Slf4j
-@Transactional(propagation = Propagation.REQUIRED)
+//@Transactional(propagation = Propagation.REQUIRED)
 public class AgendaService {
 
   private AgendaRepository agendaRepository;
@@ -108,32 +108,25 @@ public class AgendaService {
     agenda.setDisplayYn("Y");
     // Post agenda
     // Need transaction operation
+    Scanner s = new Scanner(System.in);
 
     Agenda newAgenda = this.agendaRepository.save(agenda);
-    log.info("###### Save() invoked.");
-    // for test
-    Scanner s = new Scanner(System.in);
-    log.info("###### Waiting...");
+    log.info("###### [SERVICE] Check AGENDA_MASTER... ");
     s.next();
 
-    log.info("###### Get agenda id");
-    Long id = agenda.getAgendaId();
-    log.error("###### Agenda ID = " + id);
-    log.info("###### Check DB...");
-    s.next();
-
-    log.info("###### Make statistics");
     AgendaStatistics newAgendaStatistics = AgendaStatistics.builder()
                                                           .agendaId(agenda.getAgendaId())
                                                           .likeIt(0)
                                                           .dislikeIt(0)
                                                           .build();
 
-    newAgendaStatistics = this.agendaStatisticsRepository.save(newAgendaStatistics);
-    log.info("###### Statistics save() invoked.");
-
-    return new AgendaResponse(newAgenda, newAgendaStatistics);
-//    return new AgendaResponse(newAgenda, null);
+//    newAgendaStatistics = this.agendaStatisticsRepository.save(newAgendaStatistics);
+    this.agendaStatisticsRepository.save(newAgendaStatistics);
+    log.info("###### [SERVICE] Check AGENDA_STATISTICS... ");
+    s.next();
+    log.info("###### [SERVICE] Response processed. ");
+//    return new AgendaResponse(newAgenda, newAgendaStatistics);
+    return new AgendaResponse(newAgenda, null);
 
   }
 

@@ -16,7 +16,7 @@ public interface AgendaRepository extends JpaRepository<Agenda, Long> {
     Page<Agenda> findByDisplayYn(String displayYn, Pageable pageable);
     Optional<Agenda> findByAgendaIdAndDisplayYn(Long id, String displayYn);
 
-    @Transactional
+//    @Transactional
     Agenda save(Agenda agenda);
 
 

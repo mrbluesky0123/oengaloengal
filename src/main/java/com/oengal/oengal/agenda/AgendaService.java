@@ -25,7 +25,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @Service
 @Data
 @Slf4j
-//@Transactional(propagation = Propagation.REQUIRED)
+@Transactional(propagation = Propagation.REQUIRED)
 public class AgendaService {
 
   private AgendaRepository agendaRepository;
@@ -108,11 +108,8 @@ public class AgendaService {
     agenda.setDisplayYn("Y");
     // Post agenda
     // Need transaction operation
-    Scanner s = new Scanner(System.in);
 
     Agenda newAgenda = this.agendaRepository.save(agenda);
-    log.info("###### [SERVICE] Check AGENDA_MASTER... ");
-    s.next();
 
     AgendaStatistics newAgendaStatistics = AgendaStatistics.builder()
                                                           .agendaId(agenda.getAgendaId())
@@ -120,12 +117,7 @@ public class AgendaService {
                                                           .dislikeIt(0)
                                                           .build();
 
-//    newAgendaStatistics = this.agendaStatisticsRepository.save(newAgendaStatistics);
-    this.agendaStatisticsRepository.save(newAgendaStatistics);
-    log.info("###### [SERVICE] Check AGENDA_STATISTICS... ");
-    s.next();
-    log.info("###### [SERVICE] Response processed. ");
-//    return new AgendaResponse(newAgenda, newAgendaStatistics);
+    newAgendaStatistics = this.agendaStatisticsRepository.save(newAgendaStatistics);
     return new AgendaResponse(newAgenda, null);
 
   }
@@ -137,7 +129,7 @@ public class AgendaService {
       throw new AgendaException(HttpStatus.BAD_REQUEST, -101, "Id cannot be null.");
     }
 
-    // Make agenda immutable
+    // Need to Make agenda immutable
     Agenda targetAgenda = this.agendaRepository.findByAgendaIdAndDisplayYn(
           modifiedAgenda.getAgendaId(), "Y")
           .orElseThrow(() -> new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda exists."));
@@ -150,7 +142,7 @@ public class AgendaService {
     targetAgenda.setTag3(modifiedAgenda.getTag3());
     targetAgenda.setUpdDt(LocalDateTime.now());
 
-    return this.agendaRepository.save(targetAgenda);
+    return targetAgenda;
 
   }
 

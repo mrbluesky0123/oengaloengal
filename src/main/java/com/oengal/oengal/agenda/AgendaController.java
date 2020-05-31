@@ -73,8 +73,10 @@ public class AgendaController {
         notes="category(카테고리), register(유저ID), subject(제목), versus1(대상1), versus2(대상2), "
             + "contents(내용)는 필수값(empty값도 허용하지 않음)" )
     public ResponseEntity<Agenda> modifyAgenda(@RequestBody @Valid Agenda agenda){
-
+        Scanner s = new Scanner(System.in);
         Agenda newAgenda = this.agendaService.modifyAgenda(agenda);
+        newAgenda.setTag1("123123");
+        s.next();
         return ResponseEntity.status(HttpStatus.OK).body(newAgenda);
 
     }

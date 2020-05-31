@@ -133,7 +133,7 @@ public class AgendaService {
     Agenda targetAgenda = this.agendaRepository.findByAgendaIdAndDisplayYn(
           modifiedAgenda.getAgendaId(), "Y")
           .orElseThrow(() -> new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda exists."));
-
+    Scanner s = new Scanner(System.in);
     targetAgenda.setCategory(modifiedAgenda.getCategory());
     targetAgenda.setSubject(modifiedAgenda.getSubject());
     targetAgenda.setContents(modifiedAgenda.getContents());
@@ -141,7 +141,7 @@ public class AgendaService {
     targetAgenda.setTag2(modifiedAgenda.getTag2());
     targetAgenda.setTag3(modifiedAgenda.getTag3());
     targetAgenda.setUpdDt(LocalDateTime.now());
-
+    s.next();
     return targetAgenda;
 
   }

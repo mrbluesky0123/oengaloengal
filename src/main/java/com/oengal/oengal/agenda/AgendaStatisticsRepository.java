@@ -9,6 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface AgendaStatisticsRepository extends JpaRepository<AgendaStatistics, Long> {
 
-  Optional<AgendaStatistics> findByAgendaId(Long agendaID);
+  Optional<AgendaStatistics> findById(Long id);
 
 }

@@ -47,10 +47,10 @@ public class AgendaController {
     @GetMapping({"/v1/agenda/{id}"})
     @ApiOperation(value="하나의 논제 정보 요청",
         notes="논제 id로 하나의 논제에 대한 정보를 요청한다")
-    public ResponseEntity<AgendaResponse> getAgenda(@PathVariable Long id){
+    public ResponseEntity<Agenda> getAgenda(@PathVariable Long id){
 
-        AgendaResponse agendaResponse = this.agendaService.getAgenda(id);
-        return ResponseEntity.status(HttpStatus.OK).body(agendaResponse);
+        Agenda agenda = this.agendaService.getAgenda(id);
+        return ResponseEntity.status(HttpStatus.OK).body(agenda);
 
     }
 
@@ -58,13 +58,13 @@ public class AgendaController {
     @ApiOperation(value="논제 작성",
         notes="category(카테고리), register(유저ID), subject(제목), versus1(대상1), versus2(대상2), "
             + "contents(내용) 는 필수값(empty값도 허용하지 않음)")
-    public ResponseEntity<AgendaResponse> requestAgenda(@RequestBody @Valid Agenda agenda) {
+    public ResponseEntity<Agenda> requestAgenda(@RequestBody @Valid Agenda agenda) {
         Scanner s = new Scanner(System.in);
         log.error("@@@@@@ [CONTROLLER] Received request.");
-        AgendaResponse newAgendaResponse = this.agendaService.postAgenda(agenda);
+        Agenda newAgenda = this.agendaService.postAgenda(agenda);
         log.error("@@@@@@ [CONTROLLER] Before return response.");
         s.next();
-        return ResponseEntity.status(HttpStatus.OK).body(newAgendaResponse);
+        return ResponseEntity.status(HttpStatus.OK).body(newAgenda);
 
     }
 

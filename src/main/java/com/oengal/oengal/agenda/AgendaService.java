@@ -61,9 +61,9 @@ public class AgendaService {
       // 지연 로딩 확인
       log.error("##### FUCK");
       AgendaStatistics agendaStatistics = this.agendaStatisticsRepository
-                                                .findByAgendaId(agenda.getAgendaId()) // Optional<Agenda>
+                                                .findById(agenda.getAgendaId()) // Optional<Agenda>
                                                 .orElse(AgendaStatistics.builder()
-                                                          .agendaId(agenda.getAgendaId())
+//                                                          .agendaId(agenda.getAgendaId())
                                                           .hitCount(0)
                                                           .likeIt(0)
                                                           .dislikeIt(0)
@@ -81,44 +81,46 @@ public class AgendaService {
 
 
   // Select single agenda
-  public AgendaResponse getAgenda(Long id) {
+  public Agenda getAgenda(Long id) {
 
     Agenda agenda = null;
     AgendaStatistics agendaStatistics = null;
 
+
     // Get single agenda
     agenda = this.agendaRepository.findByAgendaIdAndDisplayYn(id, "Y")
         .orElseThrow(() -> new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda exists."));
-    // Get single agenda statistics
-    agendaStatistics = this.agendaStatisticsRepository.findByAgendaId(id)
-        .orElseThrow(() -> new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda statistics exists."));
 
     // Increase hit count
-    int hitCount = agendaStatistics.getHitCount();
-    agendaStatistics.setHitCount(++hitCount);
-    this.agendaStatisticsRepository.save(agendaStatistics);
+    int hitCount = agenda.getAgendaStatistics().getHitCount();
+    agenda.getAgendaStatistics().setHitCount(++hitCount);
+//    this.agendaStatisticsRepository.save(agendaStatistics);
 
-    return new AgendaResponse(agenda, agendaStatistics);
+
+    return agenda;
 
   }
 
   // Post agenda
-  public AgendaResponse postAgenda(Agenda agenda) {
+
+  public Agenda postAgenda(Agenda agenda) {
 
     agenda.setDisplayYn("Y");
     // Post agenda
     // Need transaction operation
 
-    Agenda newAgenda = this.agendaRepository.save(agenda);
+//    Agenda newAgenda = this.agendaRepository.save(agenda);
 
     AgendaStatistics newAgendaStatistics = AgendaStatistics.builder()
-                                                          .agendaId(agenda.getAgendaId())
+                                                          .agenda(agenda)
                                                           .likeIt(0)
                                                           .dislikeIt(0)
                                                           .build();
-
-    newAgendaStatistics = this.agendaStatisticsRepository.save(newAgendaStatistics);
-    return new AgendaResponse(newAgenda, null);
+    agenda.setAgendaStatistics(newAgendaStatistics);
+    Agenda newAgenda = this.agendaRepository.save(agenda);
+//    newAgendaStatistics = this.agendaStatisticsRepository.save(newAgendaStatistics);
+//    return new AgendaResponse(newAgenda, null);
+    return newAgenda;
 
   }
 
@@ -165,7 +167,7 @@ public class AgendaService {
     AgendaStatistics agendaStatistics = null;
 
     try {
-      agendaStatistics = this.agendaStatisticsRepository.findByAgendaId(id)
+      agendaStatistics = this.agendaStatisticsRepository.findById(id)
           .orElseThrow(() -> new NoSuchElementException());
     } catch(NoSuchElementException e) {
       throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda exists.");
@@ -187,7 +189,7 @@ public class AgendaService {
     AgendaStatistics agendaStatistics = null;
 
     try {
-      agendaStatistics =   this.agendaStatisticsRepository.findByAgendaId(id)
+      agendaStatistics = this.agendaStatisticsRepository.findById(id)
           .orElseThrow(() -> new NoSuchElementException());
     } catch(NoSuchElementException e) {
       throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda exists.");

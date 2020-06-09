@@ -1,5 +1,7 @@
 package com.oengal.oengal.agenda;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.time.LocalDateTime;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -87,6 +89,10 @@ public class Agenda {
     @Column(name = "upd_dt")
     private LocalDateTime updDt;
 
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "agenda_id")
+    @JsonManagedReference
+    private AgendaStatistics agendaStatistics;
 
 }
 

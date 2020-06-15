@@ -278,6 +278,18 @@ CREATE TABLE `AGENDA_STATISTICS` (
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
 
 
+CREATE TABLE `AGENDA_STATISTICS2` (
+                                    `id` bigint(20) unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT '논제통계ID',
+                                     `agenda_id` bigint(20) unsigned zerofill NOT NULL COMMENT '논제ID',
+                                     `hit_count` int(10) unsigned DEFAULT NULL COMMENT '조회수',
+                                     `like_it` int(10) unsigned DEFAULT NULL COMMENT '좋아요수',
+                                     `dislike_it` int(10) unsigned DEFAULT NULL COMMENT '싫어요수',
+                                     `reg_dt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '등록일',
+                                     `upd_dt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '수정일',
+                                     PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
+
+
 RENAME TABLE `BOARD_MASTER` TO `AGENDA_MASTER`;
 DROP TABLE `AGENDA_STATISTICS`;
 show tables;
@@ -292,17 +304,55 @@ SELECT * FROM AGENDA_MASTER;
 SELECT * FROM AGENDA_STATISTICS;
 DESC LIKE_HISTORY;
 
-
+TRUNCATE AGENDA_MASTER;
 ALTER TABLE `AGENDA_MASTER` ADD COLUMN `nickname` varchar() DEFAULT NULL COMMENT '수정일';
 
 ALTER TABLE AGENDA_MASTER CHANGE `user_id` `nickname` varchar(20) NOT NULL COMMENT '작성자닉네임';
 ALTER TABLE AGENDA_MASTER ADD COLUMN `user_id` bigint(10) unsigned zerofill NOT NULL COMMENT '작성자ID' AFTER `thumbnail`;
+ALTER TABLE AGENDA_MASTER ADD COLUMN `statistics_id` bigint(20) unsigned zerofill NOT NULL COMMENT '논제통계ID'; FOREIGN KEY (필드이름)
+ALTER TABLE AGENDA_MASTER ADD FOREIGN KEY (`statistics_id`) REFERENCES `AGENDA_STATISTICS2`(`statistics_id`);
 
+REFERENCES 테이블이름 (필드이름);
+ALTER TABLE AGENDA_MASTER DROP `statistics_id`;
 SELECT * FROM AGENDA_MASTER;
-DESC AGENDA_MASTER;
 SELECT * FROM AGENDA_STATISTICS;
+DESC AGENDA_MASTER;
+DESC AGENDA_STATISTICS2;
+
+SELECT * FROM AGENDA_STATISTICS; WHERE agenda_id = 85;
+ALTER TABLE AGENDA_STATISTICS ADD COLUMN `agenda_id` bigint(20) unsigned zerofill NOT NULL COMMENT '논제ID' AFTER `id`;
+ALTER TABLE AGENDA_STATISTICS2 CHANGE `id` `statistics_id` bigint(20) unsigned zerofill NOT NULL COMMENT '논제통계ID';
+ALTER TABLE AGENDA_STATISTICS drop `agenda_id`;
+DESC LIKE_HISTORY;
+
+AGENDA_TONGYE;
 
 
 
-
-
+SHOW TABLES;
+select
+       agendastat0_.agenda_id as agenda_i7_1_1_,
+       agendastat0_.dislike_it as dislike_2_1_1_,
+       agendastat0_.hit_count as hit_coun3_1_1_,
+       agendastat0_.like_it as like_it4_1_1_,
+       agendastat0_.reg_dt as reg_dt5_1_1_,
+       agendastat0_.upd_dt as upd_dt6_1_1_,
+       agenda1_.agenda_id as agenda_i1_0_0_,
+       agenda1_.category as category2_0_0_,
+       agenda1_.contents as contents3_0_0_,
+       agenda1_.display_yn as display_4_0_0_,
+       agenda1_.nickname as nickname5_0_0_,
+       agenda1_.reg_dt as reg_dt6_0_0_,
+       agenda1_.subject as subject7_0_0_,
+       agenda1_.tag_1 as tag_8_0_0_,
+       agenda1_.tag_2 as tag_9_0_0_,
+       agenda1_.tag_3 as tag_10_0_0_,
+       agenda1_.thumbnail as thumbna11_0_0_,
+       agenda1_.upd_dt as upd_dt12_0_0_,
+       agenda1_.user_id as user_id13_0_0_,
+       agenda1_.versus_1 as versus_14_0_0_,
+       agenda1_.versus_2 as versus_15_0_0_
+from AGENDA_STATISTICS agendastat0_
+      left outer join AGENDA_MASTER
+          agenda1_ on agendastat0_.agenda_id = agenda1_.agenda_id
+where agendastat0_.agenda_id=85;

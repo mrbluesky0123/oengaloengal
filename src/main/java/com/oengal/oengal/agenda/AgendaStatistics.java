@@ -3,11 +3,14 @@ package com.oengal.oengal.agenda;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.time.LocalDateTime;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -21,18 +24,18 @@ import org.hibernate.annotations.GenerationTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="AGENDA_STATISTICS")
+@Table(name="AGENDA_STATISTICS2")
 @Builder
 public class AgendaStatistics {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "statistics_id")
+  private Long statisitcsId;
 
 //  @Id
 //  @Column(name = "agenda_id")
 //  private Long agendaId;
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
-  private Long id;
 
   @Column(name = "hit_count")
   private int hitCount;
@@ -50,8 +53,8 @@ public class AgendaStatistics {
   @Column(name = "upd_dt")
   private LocalDateTime updDt;
 
-  @OneToOne(mappedBy = "agendaStatistics")
   @JsonBackReference
+  @OneToOne(mappedBy = "agendaStatistics", cascade = CascadeType.ALL)
   private Agenda agenda;
 
 }

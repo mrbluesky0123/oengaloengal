@@ -356,3 +356,23 @@ from AGENDA_STATISTICS agendastat0_
       left outer join AGENDA_MASTER
           agenda1_ on agendastat0_.agenda_id = agenda1_.agenda_id
 where agendastat0_.agenda_id=85;
+
+
+
+
+http://127.0.0.1:8080/agenda/api/v1/agenda
+
+{
+    "subject": "골라라11111119999999",
+    "category": "잡담",
+    "userId": 1234134,
+    "nickname": "aaaaaa",
+    "thumbnail": "https://t1.daumcdn.net/thumb/R720x0/?fname=http://t1.daumcdn.net/brunch/service/user/4utc/image/ho3SXNRhZnwe_nLj65FMxCOMHT4.jpg",
+    "register": "mrbluesky",
+    "versus1": "볼빨간 사춘기",
+    "versus2": "사촌간 볼빨기",
+    "contents": "뭐가 더 나음???",
+    "tag1":"캬캬캬"
+}
+
+http://127.0.0.1:8080/agenda/api/v1/agenda/85

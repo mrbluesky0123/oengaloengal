@@ -110,14 +110,13 @@ public class AgendaService {
     // Need transaction operation
 
 //    Agenda newAgenda = this.agendaRepository.save(agenda);
-
+    Agenda newAgenda = this.agendaRepository.save(agenda);
     AgendaStatistics newAgendaStatistics = AgendaStatistics.builder()
-                                                          .agenda(agenda)
                                                           .likeIt(0)
                                                           .dislikeIt(0)
                                                           .build();
     agenda.setAgendaStatistics(newAgendaStatistics);
-    Agenda newAgenda = this.agendaRepository.save(agenda);
+
 //    newAgendaStatistics = this.agendaStatisticsRepository.save(newAgendaStatistics);
 //    return new AgendaResponse(newAgenda, null);
     return newAgenda;

@@ -294,7 +294,7 @@ RENAME TABLE `BOARD_MASTER` TO `AGENDA_MASTER`;
 DROP TABLE `AGENDA_STATISTICS`;
 show tables;
 
-ALTER TABLE AGENDA_STATISTICS CHANGE `upd_dt` `upd_dt` datetime DEFAULT NULL COMMENT '수정일';
+ALTER TABLE AGENDA_STATISTICS2 CHANGE `upd_dt` `upd_dt` datetime DEFAULT NULL COMMENT '수정일';
 
 DESC `AGENDA_STATISTICS`;
 
@@ -309,19 +309,26 @@ ALTER TABLE `AGENDA_MASTER` ADD COLUMN `nickname` varchar() DEFAULT NULL COMMENT
 
 ALTER TABLE AGENDA_MASTER CHANGE `user_id` `nickname` varchar(20) NOT NULL COMMENT '작성자닉네임';
 ALTER TABLE AGENDA_MASTER ADD COLUMN `user_id` bigint(10) unsigned zerofill NOT NULL COMMENT '작성자ID' AFTER `thumbnail`;
-ALTER TABLE AGENDA_MASTER ADD COLUMN `statistics_id` bigint(20) unsigned zerofill NOT NULL COMMENT '논제통계ID'; FOREIGN KEY (필드이름)
+ALTER TABLE AGENDA_MASTER ADD COLUMN `statistics_id` bigint(20) unsigned zerofill COMMENT '논제통계ID'; FOREIGN KEY (필드이름)
+ALTER TABLE AGENDA_MASTER CHANGE `statistics_id` `statistics_id` bigint(20) unsigned zerofill COMMENT '논제통계ID'; FOREIGN KEY (필드이름)
 ALTER TABLE AGENDA_MASTER ADD FOREIGN KEY (`statistics_id`) REFERENCES `AGENDA_STATISTICS2`(`statistics_id`);
 
 REFERENCES 테이블이름 (필드이름);
+ALTER TABLE AGENDA_MASTER DROP foreign key `AGENDA_MASTER_ibfk_1`;
 ALTER TABLE AGENDA_MASTER DROP `statistics_id`;
+ALTER TABLE AGENDA_STATISTICS2 DROP `agenda_id`;
 SELECT * FROM AGENDA_MASTER;
-SELECT * FROM AGENDA_STATISTICS;
+SELECT * FROM AGENDA_STATISTICS2;
 DESC AGENDA_MASTER;
 DESC AGENDA_STATISTICS2;
+show databases ;
+DESC COMMENT_MASTER;
+DESC COMMENT_STATISTICS;
+SELECT * FROM Information_schema.table_constraints WHERE table_name='AGENDA_MASTER';
 
 SELECT * FROM AGENDA_STATISTICS; WHERE agenda_id = 85;
 ALTER TABLE AGENDA_STATISTICS ADD COLUMN `agenda_id` bigint(20) unsigned zerofill NOT NULL COMMENT '논제ID' AFTER `id`;
-ALTER TABLE AGENDA_STATISTICS2 CHANGE `id` `statistics_id` bigint(20) unsigned zerofill NOT NULL COMMENT '논제통계ID';
+ALTER TABLE AGENDA_STATISTICS2 CHANGE `statistics_id` `statistics_id` bigint(20) unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT '논제통계ID';
 ALTER TABLE AGENDA_STATISTICS drop `agenda_id`;
 DESC LIKE_HISTORY;
 
@@ -356,23 +363,3 @@ from AGENDA_STATISTICS agendastat0_
       left outer join AGENDA_MASTER
           agenda1_ on agendastat0_.agenda_id = agenda1_.agenda_id
 where agendastat0_.agenda_id=85;
-
-
-
-
-http://127.0.0.1:8080/agenda/api/v1/agenda
-
-{
-    "subject": "골라라11111119999999",
-    "category": "잡담",
-    "userId": 1234134,
-    "nickname": "aaaaaa",
-    "thumbnail": "https://t1.daumcdn.net/thumb/R720x0/?fname=http://t1.daumcdn.net/brunch/service/user/4utc/image/ho3SXNRhZnwe_nLj65FMxCOMHT4.jpg",
-    "register": "mrbluesky",
-    "versus1": "볼빨간 사춘기",
-    "versus2": "사촌간 볼빨기",
-    "contents": "뭐가 더 나음???",
-    "tag1":"캬캬캬"
-}
-
-http://127.0.0.1:8080/agenda/api/v1/agenda/85

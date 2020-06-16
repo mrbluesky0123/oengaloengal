@@ -90,7 +90,7 @@ public class Agenda {
     private LocalDateTime updDt;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "agenda_id")
+    @JoinColumn(name = "statistics_id")
     @JsonManagedReference
     private AgendaStatistics agendaStatistics;
 

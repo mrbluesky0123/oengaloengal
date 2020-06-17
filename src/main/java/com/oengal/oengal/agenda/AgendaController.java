@@ -28,7 +28,7 @@ public class AgendaController {
     public AgendaController(AgendaService agendaService){
         this.agendaService = agendaService;
     }
-
+    
     @GetMapping({"/v1/agenda"})
     @ApiOperation(value="논제 카드에 쓰일 정보 요청",
         notes="!!! BASE URL !!!! \n"

@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @CrossOrigin(origins="*")
@@ -28,7 +30,7 @@ public class AgendaController {
     public AgendaController(AgendaService agendaService){
         this.agendaService = agendaService;
     }
-    
+
     @GetMapping({"/v1/agenda"})
     @ApiOperation(value="논제 카드에 쓰일 정보 요청",
         notes="!!! BASE URL !!!! \n"
@@ -47,8 +49,9 @@ public class AgendaController {
     @GetMapping({"/v1/agenda/{id}"})
     @ApiOperation(value="하나의 논제 정보 요청",
         notes="논제 id로 하나의 논제에 대한 정보를 요청한다")
-    public ResponseEntity<Agenda> getAgenda(@PathVariable Long id){
+    public ResponseEntity<Agenda> getAgenda(HttpServletRequest request, @PathVariable Long id){
 
+        System.out.println("#@#@#@#@#@ ID = " + request.getCookies().toString());
         Agenda agenda = this.agendaService.getAgenda(id);
         return ResponseEntity.status(HttpStatus.OK).body(agenda);
 

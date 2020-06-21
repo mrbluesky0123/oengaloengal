@@ -1,5 +1,7 @@
 package com.oengal.oengal.agenda;
 
+import com.oengal.oengal.likeit.LikeIt;
+import com.oengal.oengal.likeit.LikeItRepository;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,13 +32,16 @@ public class AgendaService {
 
   private AgendaRepository agendaRepository;
   private AgendaStatisticsRepository agendaStatisticsRepository;
+  private LikeItRepository likeItRepository;
 
   @Autowired
   public AgendaService(AgendaRepository agendaRepository,
-      AgendaStatisticsRepository agendaStatisticsRepository) {
+      AgendaStatisticsRepository agendaStatisticsRepository,
+      LikeItRepository likeItRepository) {
 
     this.agendaRepository = agendaRepository;
     this.agendaStatisticsRepository = agendaStatisticsRepository;
+    this.likeItRepository = likeItRepository;
 
   }
 
@@ -70,7 +75,7 @@ public class AgendaService {
                                                           .build()
                                                 );
       log.error("##### FUCK2");
-      AgendaResponse agendaResponse = new AgendaResponse(agenda, agendaStatistics);
+      AgendaResponse agendaResponse = new AgendaResponse(agenda, false, false);
       agendaResponseList.add(agendaResponse);
 
     }
@@ -81,28 +86,35 @@ public class AgendaService {
 
 
   // Select single agenda
-  public Agenda getAgenda(Long id) {
+  public AgendaResponse getAgenda(Long agendaId, String userId) {
 
     Agenda agenda = null;
     AgendaStatistics agendaStatistics = null;
+    LikeIt likeIt = null;
 
-
-    // Get single agenda
-    agenda = this.agendaRepository.findByAgendaIdAndDisplayYn(id, "Y")
+    /* Get single agenda */
+    agenda = this.agendaRepository.findByAgendaIdAndDisplayYn(agendaId, "Y")
         .orElseThrow(() -> new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda exists."));
-
-    // Increase hit count
+    /* Increase hit count */
     int hitCount = agenda.getAgendaStatistics().getHitCount();
     agenda.getAgendaStatistics().setHitCount(++hitCount);
-//    this.agendaStatisticsRepository.save(agendaStatistics);
 
+    /* Get liked/disliked information */
+    likeIt = this.likeItRepository.findByUserIdAndAgendaId(userId, agendaId)
+        .orElse(LikeIt.builder().likeFlag("N").build());
 
-    return agenda;
+    /* Make Response */
+    AgendaResponse agendaResponse = AgendaResponse.builder()
+                                                  .agenda(agenda)
+                                                  .isLiked(likeIt.getLikeFlag().equals("Y"))
+                                                  .isDisliked(false)
+                                                  .build();
+
+    return agendaResponse;
 
   }
 
   // Post agenda
-
   public Agenda postAgenda(Agenda agenda) {
 
     agenda.setDisplayYn("Y");
@@ -160,25 +172,31 @@ public class AgendaService {
 
   }
 
-  // Increase agenda "likeit"
-  public AgendaStatistics increaseLikeIt(Long id) {
+  /* Increase agenda "likeit" */
+  public AgendaResponse increaseLikeIt(Long agendaId, String userId) {
 
-    AgendaStatistics agendaStatistics = null;
-
-    try {
-      agendaStatistics = this.agendaStatisticsRepository.findById(id)
-          .orElseThrow(() -> new NoSuchElementException());
-    } catch(NoSuchElementException e) {
-      throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda exists.");
+    if(userId.equals("N/A")) {
+      throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "Login is needed.");
     }
 
-    // do not increase hit count for the same user
-    int likeit = agendaStatistics.getLikeIt();
-    agendaStatistics.setLikeIt(++likeit);
-    // need exception handling
-    this.agendaStatisticsRepository.save(agendaStatistics);
+    Agenda agenda = this.agendaRepository.findByAgendaIdAndDisplayYn(agendaId, "Y")
+        .orElseThrow(() -> new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda exists."));
+    /* Increase likeit */
+    int likeItStat = agenda.getAgendaStatistics().getLikeIt();
+    agenda.getAgendaStatistics().setLikeIt(++likeItStat);
 
-    return agendaStatistics;
+    /* Insert likeit history */
+    LikeIt likeit = LikeIt.builder().userId(userId).agendaId(agendaId).likeFlag("Y").build();
+    LikeIt newLikeit = this.likeItRepository.save(likeit);
+
+    /* Make response */
+    AgendaResponse agendaResponse = AgendaResponse.builder()
+                                                  .agenda(agenda)
+                                                  .isLiked(newLikeit.getLikeFlag().equals("Y"))
+                                                  .isDisliked(false)
+                                                  .build();
+
+    return agendaResponse;
 
   }
 

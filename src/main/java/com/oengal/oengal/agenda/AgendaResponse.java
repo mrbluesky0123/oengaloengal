@@ -8,9 +8,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class AgendaResponse {
 
-  private Agenda agenda;
-  private AgendaStatistics agendaStatistics;
+  private Agenda agenda; // statistics
+  private boolean isLiked;  //
+  private boolean isDisliked;
 
 }

@@ -4,10 +4,15 @@ package com.oengal.oengal.agenda;
 import com.oengal.oengal.common.ErrorResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+import java.util.stream.Collectors;
+import javax.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import org.springframework.web.util.WebUtils;
 
 @CrossOrigin(origins="*")
 @RestController
@@ -46,14 +52,14 @@ public class AgendaController {
 
     }
 
-    @GetMapping({"/v1/agenda/{id}"})
+    @GetMapping({"/v1/agenda/{agendaId}"})
     @ApiOperation(value="하나의 논제 정보 요청",
         notes="논제 id로 하나의 논제에 대한 정보를 요청한다")
-    public ResponseEntity<Agenda> getAgenda(HttpServletRequest request, @PathVariable Long id){
+    public ResponseEntity<AgendaResponse> getAgenda(String userId, @PathVariable Long agendaId){
 
-        System.out.println("#@#@#@#@#@ ID = " + request.getCookies().toString());
-        Agenda agenda = this.agendaService.getAgenda(id);
-        return ResponseEntity.status(HttpStatus.OK).body(agenda);
+        log.error(userId);
+        AgendaResponse agendaResponse = this.agendaService.getAgenda(agendaId, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(agendaResponse);
 
     }
 
@@ -93,12 +99,12 @@ public class AgendaController {
 
     }
 
-    @PutMapping({"/v1/agenda/likeit/{id}"})
+    @PutMapping({"/v1/agenda/likeit/{agendaId}"})
     @ApiOperation(value="논제 좋아요 증가", notes="논제 id로 하나의 논제 '좋아요'를 1증가 시킨다.")
-    public ResponseEntity<AgendaStatistics> increaseLikeit(@PathVariable Long id){
+    public ResponseEntity<AgendaResponse> increaseLikeit(@CookieValue(value = "userid", defaultValue = "N/A") String userId, @PathVariable Long agendaId){
 
-        AgendaStatistics newAgendaStatistics = this.agendaService.increaseLikeIt(id);
-        return ResponseEntity.status(HttpStatus.OK).body(newAgendaStatistics);
+        AgendaResponse agendaResponse = this.agendaService.increaseLikeIt(agendaId, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(agendaResponse);
 
     }
 

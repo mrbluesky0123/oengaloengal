@@ -13,9 +13,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 
 @Data
 @NoArgsConstructor
@@ -23,6 +26,7 @@ import lombok.ToString;
 @Entity
 @Table(name="LIKE_HISTORY")
 @ToString
+@Builder
 public class LikeIt {
 
   @Id
@@ -39,6 +43,7 @@ public class LikeIt {
   private String likeFlag;
 
   @Column(name = "regdate")
+  @Generated(GenerationTime.INSERT)
   private LocalDateTime regDate;
 
 }

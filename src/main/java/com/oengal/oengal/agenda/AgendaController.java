@@ -6,6 +6,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import java.util.stream.Collectors;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.util.WebUtils;
 
 @CrossOrigin(origins="*")
@@ -50,11 +53,12 @@ public class AgendaController {
             Integer.parseInt(pageSize), sort);
         return ResponseEntity.status(HttpStatus.OK).body(agendaResponseListList);
 
-    }
+}
 
     @GetMapping({"/v1/agenda/{agendaId}"})
     @ApiOperation(value="하나의 논제 정보 요청",
-        notes="논제 id로 하나의 논제에 대한 정보를 요청한다")
+            notes="논제 id로 하나의 논제에 대한 정보를 요청한다")
+    @UserIdFromCookie
     public ResponseEntity<AgendaResponse> getAgenda(String userId, @PathVariable Long agendaId){
 
         log.error(userId);
@@ -65,8 +69,8 @@ public class AgendaController {
 
     @PostMapping({"/v1/agenda"})
     @ApiOperation(value="논제 작성",
-        notes="category(카테고리), register(유저ID), subject(제목), versus1(대상1), versus2(대상2), "
-            + "contents(내용) 는 필수값(empty값도 허용하지 않음)")
+            notes="category(카테고리), register(유저ID), subject(제목), versus1(대상1), versus2(대상2), "
+                    + "contents(내용) 는 필수값(empty값도 허용하지 않음)")
     public ResponseEntity<Agenda> requestAgenda(@RequestBody @Valid Agenda agenda) {
         Scanner s = new Scanner(System.in);
         log.error("@@@@@@ [CONTROLLER] Received request.");

@@ -1,15 +1,19 @@
 package com.oengal.oengal.agenda;
 
+import java.util.Map;
 import java.util.Objects;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.util.WebUtils;
 
 @Component
@@ -17,14 +21,23 @@ import org.springframework.web.util.WebUtils;
 @Aspect
 public class AgendaAdvice {
 
-  @Before("@annotation(com.oengal.oengal.agenda.UserIdFromCookie)")
-  public String getUserIdFromCookie(JoinPoint joinPoint){
+  @Around("@annotation(com.oengal.oengal.agenda.UserIdFromCookie)")
+  public Object getUserIdFromCookie(ProceedingJoinPoint joinPoint){
     HttpServletRequest req = ((ServletRequestAttributes) Objects
         .requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
     /* null check logic need to be added */
     String userId = WebUtils.getCookie(req, "userid").getValue();
 
-
+    Map<String, String> pathVariable = (Map<String, String>) req.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+    Long agendaId =  Long.parseLong(pathVariable.get("agendaId"));
+    log.error("!!!!!!!!!! agednaId = " + agendaId + ", uesrId = " + userId);
+    Object resultObj = null;
+    try {
+      resultObj = joinPoint.proceed(new Object[] { userId, agendaId });
+    } catch (Throwable throwable) {
+      throwable.printStackTrace();
+    }
+    return resultObj;
 
   }
 

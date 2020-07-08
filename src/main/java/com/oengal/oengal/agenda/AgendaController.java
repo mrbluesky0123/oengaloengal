@@ -46,14 +46,23 @@ public class AgendaController {
             + "http://hostname:port/agenda/api\n"
             + "pageNum, pageSize, sort(정렬기준컬럼)이 쿼리파라미터로 사용되며 sort는 대소문자가 구분된 컬럼명을 사용\n"
             + "sort - regDate, likeit, dislikeit, ...")
-    public ResponseEntity<List<AgendaResponse>> getAgendaList(
-        @RequestParam String pageNum, @RequestParam String pageSize, @RequestParam String sort){
+    public ResponseEntity<List<AgendaResponse>> getAgendaListOrderByRegDt(
+        @RequestParam String pageNum, @RequestParam String pageSize){
 
-        List<AgendaResponse> agendaResponseListList = this.agendaService.getAgendaList(Integer.parseInt(pageNum),
-            Integer.parseInt(pageSize), sort);
-        return ResponseEntity.status(HttpStatus.OK).body(agendaResponseListList);
+        List<AgendaResponse> agendaResponseList = this.agendaService.getAgendaList(Integer.parseInt(pageNum),
+            Integer.parseInt(pageSize), "reg_dt");
+        return ResponseEntity.status(HttpStatus.OK).body(agendaResponseList);
 
-}
+    }
+
+    public ResponseEntity<List<AgendaResponse>> getAgendaListOrderByLikeit(
+        @RequestParam String pageNum, @RequestParam String pageSize){
+
+        List<AgendaResponse> agendaResponseList = this.agendaService.getAgendaList(Integer.parseInt(pageNum),
+            Integer.parseInt(pageSize), "likeit");
+        return ResponseEntity.status(HttpStatus.OK).body(agendaResponseList);
+
+    }
 
     @GetMapping({"/v1/agenda/{agendaId}"})
     @ApiOperation(value="하나의 논제 정보 요청",

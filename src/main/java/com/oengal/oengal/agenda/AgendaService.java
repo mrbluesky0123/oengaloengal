@@ -63,8 +63,6 @@ public class AgendaService {
 
     // Make reponse with agenda, agenda statistics
     for(Agenda agenda: agendaList){
-      // 지연 로딩 확인
-      log.error("##### FUCK");
       AgendaStatistics agendaStatistics = this.agendaStatisticsRepository
                                                 .findById(agenda.getAgendaId()) // Optional<Agenda>
                                                 .orElse(AgendaStatistics.builder()
@@ -74,7 +72,6 @@ public class AgendaService {
                                                           .dislikeIt(0)
                                                           .build()
                                                 );
-      log.error("##### FUCK2");
       AgendaResponse agendaResponse = new AgendaResponse(agenda, false, false);
       agendaResponseList.add(agendaResponse);
 

@@ -1,30 +1,19 @@
 package com.oengal.oengal.agenda;
 
 
-import com.oengal.oengal.common.ErrorResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import java.util.Arrays;
+
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
-import java.util.stream.Collectors;
-import javax.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.annotation.After;
-import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-
-import org.springframework.web.servlet.HandlerMapping;
-import org.springframework.web.util.WebUtils;
 
 @CrossOrigin(origins="*")
 @RestController

@@ -82,6 +82,42 @@ public class AgendaService {
   }
 
 
+  // Select agenda list
+  public List<AgendaResponse> getAgendaListOrderByLikeit(int pageNum, int pageSize, String sort) {
+
+    List<AgendaResponse> agendaResponseList = new ArrayList<>();
+
+    // Get agendas
+    PageRequest pageRequest = PageRequest.of(pageNum, pageSize, Sort.by(sort).descending());
+
+    //
+    Page<Agenda> agendaPage = this.agendaRepository.findByDisplayYn("Y", pageRequest);
+    if(!agendaPage.hasContent()) {
+      throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "No agendas.");
+    }
+    List<Agenda> agendaList = agendaPage.getContent();
+
+    // Make reponse with agenda, agenda statistics
+    for(Agenda agenda: agendaList){
+      AgendaStatistics agendaStatistics = this.agendaStatisticsRepository
+              .findById(agenda.getAgendaId()) // Optional<Agenda>
+              .orElse(AgendaStatistics.builder()
+//                                                          .agendaId(agenda.getAgendaId())
+                              .hitCount(0)
+                              .likeIt(0)
+                              .dislikeIt(0)
+                              .build()
+              );
+      AgendaResponse agendaResponse = new AgendaResponse(agenda, false, false);
+      agendaResponseList.add(agendaResponse);
+
+    }
+
+    return agendaResponseList;
+
+  }
+
+
   // Select single agenda
   public AgendaResponse getAgenda(Long agendaId, String userId) {
 

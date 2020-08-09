@@ -4,6 +4,7 @@ import com.oengal.oengal.agenda.Agenda;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;

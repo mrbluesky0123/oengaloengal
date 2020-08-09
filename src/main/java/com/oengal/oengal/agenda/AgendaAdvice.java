@@ -1,5 +1,6 @@
 package com.oengal.oengal.agenda;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import javax.servlet.http.Cookie;
@@ -10,6 +11,8 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.reflect.CodeSignature;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -41,4 +44,25 @@ public class AgendaAdvice {
 
   }
 
+  @Before("execution(* com.oengal.oengal.agenda.*Controller.*(..))")
+  public void setUserIdToMDC(JoinPoint joinPoint) {
+    CodeSignature s = (CodeSignature) joinPoint.getSignature();
+    s.getParameterTypes();
+    HttpServletRequest req =
+        ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+    if(req.getMethod().equals("POST")) {
+      Agenda agenda = (Agenda) joinPoint.getArgs()[0];
+      log.error("#####" + Arrays.toString(s.getParameterTypes()));
+      String userId = null;
+      if(agenda.getUserId() == null || agenda.getUserId().toString().equals("")) {
+        userId = "N/A";
+      } else {
+        userId = agenda.getUserId().toString();
+      }
+      MDC.put("USER_ID", userId);
+    } else {
+      MDC.put("USER_ID", "N/A");
+    }
+
+  }
 }

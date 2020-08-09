@@ -142,7 +142,7 @@ public class AgendaService {
                                                   .isLiked(likeIt.getLikeFlag().equals("Y"))
                                                   .isDisliked(false)
                                                   .build();
-
+    log.error("service");
     return agendaResponse;
 
   }
@@ -161,7 +161,7 @@ public class AgendaService {
                                                           .dislikeIt(0)
                                                           .build();
     agenda.setAgendaStatistics(newAgendaStatistics);
-
+    log.error("[SERVICE]: HERE IS SERVICE.");
 //    newAgendaStatistics = this.agendaStatisticsRepository.save(newAgendaStatistics);
 //    return new AgendaResponse(newAgenda, null);
     return newAgenda;
@@ -187,7 +187,7 @@ public class AgendaService {
     targetAgenda.setTag2(modifiedAgenda.getTag2());
     targetAgenda.setTag3(modifiedAgenda.getTag3());
     targetAgenda.setUpdDt(LocalDateTime.now());
-    s.next();
+
     return targetAgenda;
 
   }
@@ -212,13 +212,21 @@ public class AgendaService {
       throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "Login is needed.");
     }
 
+    /* Check user's likeit flag is 'Y' */
+    LikeIt userLikeIt = this.likeItRepository.findByUserIdAndAgendaId(userId, agendaId)
+                                           .orElse(LikeIt.builder().userId(userId).agendaId(agendaId).likeFlag("N").build());
+    if(userLikeIt.getLikeFlag().equals("Y")){
+      throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "Likeit cannot be duplicated.");
+    }
+
     Agenda agenda = this.agendaRepository.findByAgendaIdAndDisplayYn(agendaId, "Y")
         .orElseThrow(() -> new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda exists."));
+
     /* Increase likeit */
     int likeItStat = agenda.getAgendaStatistics().getLikeIt();
     agenda.getAgendaStatistics().setLikeIt(++likeItStat);
 
-    /* Insert likeit history */
+    /* Insert/Update likeit history */
     LikeIt likeit = LikeIt.builder().userId(userId).agendaId(agendaId).likeFlag("Y").build();
     LikeIt newLikeit = this.likeItRepository.save(likeit);
 
@@ -227,6 +235,44 @@ public class AgendaService {
                                                   .agenda(agenda)
                                                   .isLiked(newLikeit.getLikeFlag().equals("Y"))
                                                   .isDisliked(false)
+                                                  .build();
+
+    return agendaResponse;
+
+  }
+
+  /* Decrease agenda "likeit" */
+  public AgendaResponse decreaseLikeIt(Long agendaId, String userId) {
+
+    if(userId.equals("N/A")) {
+      throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "Login is needed.");
+    }
+
+    /* Check user's likeit flag is 'Y' */
+    LikeIt userLikeIt = this.likeItRepository.findByUserIdAndAgendaId(userId, agendaId)
+                                             .orElse(LikeIt.builder().likeFlag("N").build());
+    if(userLikeIt.getLikeFlag().equals("N")){
+      throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "Cannot find user's likeit history.");
+    }
+
+    Agenda agenda = this.agendaRepository.findByAgendaIdAndDisplayYn(agendaId, "Y")
+        .orElseThrow(() -> new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda exists."));
+
+    /* Decrease likeit */
+    int likeItStat = agenda.getAgendaStatistics().getLikeIt();
+    if(likeItStat == 0){
+      throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "Likeit cannot be minus value.");
+    }
+    agenda.getAgendaStatistics().setLikeIt(--likeItStat);
+
+    /* Update likeit history */
+    userLikeIt.setLikeFlag("N");
+
+    /* Make response */
+    AgendaResponse agendaResponse = AgendaResponse.builder()
+                                                  .agenda(agenda)
+                                                  .isLiked(false)
+                                                  .isDisliked(userLikeIt.getLikeFlag().equals("N"))
                                                   .build();
 
     return agendaResponse;

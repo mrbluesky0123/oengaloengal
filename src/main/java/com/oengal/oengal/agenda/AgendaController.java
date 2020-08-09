@@ -29,7 +29,7 @@ public class AgendaController {
         this.agendaService = agendaService;
     }
 
-    @GetMapping({"/v1/agenda"})
+    @GetMapping({"/v1/agenda/regdtordered"})
     @ApiOperation(value="논제 카드에 쓰일 정보 요청",
         notes="!!! BASE URL !!!! \n"
             + "http://hostname:port/agenda/api\n"
@@ -39,16 +39,18 @@ public class AgendaController {
         @RequestParam String pageNum, @RequestParam String pageSize){
 
         List<AgendaResponse> agendaResponseList = this.agendaService.getAgendaList(Integer.parseInt(pageNum),
-            Integer.parseInt(pageSize), "reg_dt");
+            Integer.parseInt(pageSize), "regDt");
+        log.error("cccccccontroller");
         return ResponseEntity.status(HttpStatus.OK).body(agendaResponseList);
 
     }
 
+    @GetMapping({"/v1/agenda/likeitordered"})
     public ResponseEntity<List<AgendaResponse>> getAgendaListOrderByLikeit(
         @RequestParam String pageNum, @RequestParam String pageSize){
 
         List<AgendaResponse> agendaResponseList = this.agendaService.getAgendaList(Integer.parseInt(pageNum),
-            Integer.parseInt(pageSize), "likeit");
+            Integer.parseInt(pageSize), "agendaStatistics.likeIt");
         return ResponseEntity.status(HttpStatus.OK).body(agendaResponseList);
 
     }
@@ -75,6 +77,7 @@ public class AgendaController {
         Agenda newAgenda = this.agendaService.postAgenda(agenda);
         log.error("@@@@@@ [CONTROLLER] Before return response.");
         s.next();
+        log.error("^^^^^^^^" + agenda.getUserId().toString());
         return ResponseEntity.status(HttpStatus.OK).body(newAgenda);
 
     }
@@ -101,11 +104,20 @@ public class AgendaController {
 
     }
 
-    @PutMapping({"/v1/agenda/likeit/{agendaId}"})
+    @PutMapping({"/v1/agenda/likeitinc/{agendaId}"})
     @ApiOperation(value="논제 좋아요 증가", notes="논제 id로 하나의 논제 '좋아요'를 1증가 시킨다.")
     public ResponseEntity<AgendaResponse> increaseLikeit(@CookieValue(value = "userid", defaultValue = "N/A") String userId, @PathVariable Long agendaId){
 
         AgendaResponse agendaResponse = this.agendaService.increaseLikeIt(agendaId, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(agendaResponse);
+
+    }
+
+    @PutMapping({"/v1/agenda/likeitdec/{agendaId}"})
+    @ApiOperation(value="논제 좋아요 증가", notes="논제 id로 하나의 논제 '좋아요'를 1증가 시킨다.")
+    public ResponseEntity<AgendaResponse> decreaseLikeit(@CookieValue(value = "userid", defaultValue = "N/A") String userId, @PathVariable Long agendaId){
+
+        AgendaResponse agendaResponse = this.agendaService.decreaseLikeIt(agendaId, userId);
         return ResponseEntity.status(HttpStatus.OK).body(agendaResponse);
 
     }

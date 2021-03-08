@@ -29,7 +29,8 @@ public class AgendaAdvice {
     HttpServletRequest req = ((ServletRequestAttributes) Objects
         .requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
     /* null check logic need to be added */
-    String userId = WebUtils.getCookie(req, "userid").getValue();
+//    String userId = WebUtils.getCookie(req, "userid").getValue();
+    String userId = "FFF";
 
     Map<String, String> pathVariable = (Map<String, String>) req.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
     Long agendaId =  Long.parseLong(pathVariable.get("agendaId"));

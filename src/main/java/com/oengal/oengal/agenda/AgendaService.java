@@ -2,19 +2,17 @@ package com.oengal.oengal.agenda;
 
 import com.oengal.oengal.likeit.LikeIt;
 import com.oengal.oengal.likeit.LikeItRepository;
-import java.sql.SQLException;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 
-import java.util.Scanner;
+import com.oengal.oengal.likeit.LikeItService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,26 +20,25 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
 @Data
 @Slf4j
-@Transactional(propagation = Propagation.REQUIRED)
+//@Transactional(propagation = Propagation.REQUIRED)
 public class AgendaService {
 
   private AgendaRepository agendaRepository;
   private AgendaStatisticsRepository agendaStatisticsRepository;
-  private LikeItRepository likeItRepository;
+  private LikeItService likeItService;
 
   @Autowired
   public AgendaService(AgendaRepository agendaRepository,
       AgendaStatisticsRepository agendaStatisticsRepository,
-      LikeItRepository likeItRepository) {
+      LikeItService likeItService) {
 
     this.agendaRepository = agendaRepository;
     this.agendaStatisticsRepository = agendaStatisticsRepository;
-    this.likeItRepository = likeItRepository;
+    this.likeItService = likeItService;
 
   }
 
@@ -119,6 +116,7 @@ public class AgendaService {
 
 
   // Select single agenda
+  @Transactional(propagation = Propagation.REQUIRED)
   public AgendaResponse getAgenda(Long agendaId, String userId) {
 
     Agenda agenda = null;
@@ -133,8 +131,12 @@ public class AgendaService {
     agenda.getAgendaStatistics().setHitCount(++hitCount);
 
     /* Get liked/disliked information */
-    likeIt = this.likeItRepository.findByUserIdAndAgendaId(userId, agendaId)
-        .orElse(LikeIt.builder().likeFlag("N").build());
+    try {
+      likeIt = this.likeItService.findByUserIdAndAgendaId(userId, agendaId)
+              .orElse(LikeIt.builder().likeFlag("N").build());
+    } catch (RuntimeException e) {
+      likeIt = LikeIt.builder().likeFlag("N").build();
+    }
 
     /* Make Response */
     AgendaResponse agendaResponse = AgendaResponse.builder()
@@ -179,7 +181,7 @@ public class AgendaService {
     Agenda targetAgenda = this.agendaRepository.findByAgendaIdAndDisplayYn(
           modifiedAgenda.getAgendaId(), "Y")
           .orElseThrow(() -> new AgendaException(HttpStatus.BAD_REQUEST, -100, "No such agenda exists."));
-    Scanner s = new Scanner(System.in);
+//    Scanner s = new Scanner(System.in);
     targetAgenda.setCategory(modifiedAgenda.getCategory());
     targetAgenda.setSubject(modifiedAgenda.getSubject());
     targetAgenda.setContents(modifiedAgenda.getContents());
@@ -213,7 +215,7 @@ public class AgendaService {
     }
 
     /* Check user's likeit flag is 'Y' */
-    LikeIt userLikeIt = this.likeItRepository.findByUserIdAndAgendaId(userId, agendaId)
+    LikeIt userLikeIt = this.likeItService.findByUserIdAndAgendaId(userId, agendaId)
                                            .orElse(LikeIt.builder().userId(userId).agendaId(agendaId).likeFlag("N").build());
     if(userLikeIt.getLikeFlag().equals("Y")){
       throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "Likeit cannot be duplicated.");
@@ -228,7 +230,7 @@ public class AgendaService {
 
     /* Insert/Update likeit history */
     LikeIt likeit = LikeIt.builder().userId(userId).agendaId(agendaId).likeFlag("Y").build();
-    LikeIt newLikeit = this.likeItRepository.save(likeit);
+    LikeIt newLikeit = this.likeItService.save(likeit);
 
     /* Make response */
     AgendaResponse agendaResponse = AgendaResponse.builder()
@@ -249,7 +251,7 @@ public class AgendaService {
     }
 
     /* Check user's likeit flag is 'Y' */
-    LikeIt userLikeIt = this.likeItRepository.findByUserIdAndAgendaId(userId, agendaId)
+    LikeIt userLikeIt = this.likeItService.findByUserIdAndAgendaId(userId, agendaId)
                                              .orElse(LikeIt.builder().likeFlag("N").build());
     if(userLikeIt.getLikeFlag().equals("N")){
       throw new AgendaException(HttpStatus.BAD_REQUEST, -100, "Cannot find user's likeit history.");

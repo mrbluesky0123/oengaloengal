@@ -72,11 +72,11 @@ public class AgendaController {
             notes="category(카테고리), register(유저ID), subject(제목), versus1(대상1), versus2(대상2), "
                     + "contents(내용) 는 필수값(empty값도 허용하지 않음)")
     public ResponseEntity<Agenda> requestAgenda(@RequestBody @Valid Agenda agenda) {
-        Scanner s = new Scanner(System.in);
+//        Scanner s = new Scanner(System.in);
         log.error("@@@@@@ [CONTROLLER] Received request.");
         Agenda newAgenda = this.agendaService.postAgenda(agenda);
         log.error("@@@@@@ [CONTROLLER] Before return response.");
-        s.next();
+//        s.next();
         log.error("^^^^^^^^" + agenda.getUserId().toString());
         return ResponseEntity.status(HttpStatus.OK).body(newAgenda);
 
@@ -87,10 +87,10 @@ public class AgendaController {
         notes="category(카테고리), register(유저ID), subject(제목), versus1(대상1), versus2(대상2), "
             + "contents(내용)는 필수값(empty값도 허용하지 않음)" )
     public ResponseEntity<Agenda> modifyAgenda(@RequestBody @Valid Agenda agenda){
-        Scanner s = new Scanner(System.in);
+//        Scanner s = new Scanner(System.in);
         Agenda newAgenda = this.agendaService.modifyAgenda(agenda);
         newAgenda.setTag1("123123");
-        s.next();
+//        s.next();
         return ResponseEntity.status(HttpStatus.OK).body(newAgenda);
 
     }
@@ -106,7 +106,7 @@ public class AgendaController {
 
     @PutMapping({"/v1/agenda/likeitinc/{agendaId}"})
     @ApiOperation(value="논제 좋아요 증가", notes="논제 id로 하나의 논제 '좋아요'를 1증가 시킨다.")
-    public ResponseEntity<AgendaResponse> increaseLikeit(@CookieValue(value = "userid", defaultValue = "N/A") String userId, @PathVariable Long agendaId){
+    public ResponseEntity<AgendaResponse> increaseLikeit(@CookieValue(value = "userid", defaultValue = "FFF") String userId, @PathVariable Long agendaId){
 
         AgendaResponse agendaResponse = this.agendaService.increaseLikeIt(agendaId, userId);
         return ResponseEntity.status(HttpStatus.OK).body(agendaResponse);
